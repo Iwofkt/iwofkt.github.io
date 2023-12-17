@@ -5,9 +5,9 @@
     padding: 0px;
 }
 body{
+    background-color: darkblue;
     background-image: linear-gradient(to bottom, rgb(0, 0, 0), rgb(0, 136, 220)) ;
     width: 100%;
-    height: 100%;
 }
 
 p{
@@ -15,6 +15,18 @@ p{
     font-family: Arial, Helvetica, sans-serif;
     letter-spacing: 2px;
 }
+
+.navbar{
+    height: 65px;
+    z-index: 99;
+    overflow: hidden;
+    background-color: darkblue;
+    position: fixed;
+    width: 100%;
+    top: 0px;
+    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.337);
+}
+
 .navbar .item{
     float: right;
     background-color: darkblue;
@@ -46,17 +58,6 @@ p{
     border:solid 5px darkblue;
     position: fixed;
     background-color: darkblue;
-}
-
-.navbar{
-    height: 65px;
-    z-index: 99;
-    overflow: hidden;
-    background-color: darkblue;
-    position: fixed;
-    width: 100%;
-    top: 0px;
-    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.337);
 }
 
 .box{
@@ -92,46 +93,47 @@ p{
 }
 
 #one.card{
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(L1010441.JPG);
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(Images/Blue.JPG);
 }
 #one.card:hover{
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgb(72, 72, 72)), url(L1010441.JPG);
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgb(72, 72, 72)), url(Images/Blue.JPG);
 }
 
 
 #two.card{
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(L1010339.JPG);
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(Images/Red.JPG);
 }
 #two.card:hover{
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url(L1010339.JPG);
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url(Images/Red.JPG);
 }
 
 #three.card{
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url();
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(Images/Tree.JPG);
 }
 #three.card:hover{
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url();
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url(Images/Tree.JPG);
 }
 
 #four.card{
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url();
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0) 0%, rgba(0, 0, 0, 0.861)), url(Images/Store.JPG);
 }
 #four.card:hover{
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url();
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(72, 72, 72, 1)), url(Images/Store.JPG);
 }
 
 .bottom{
-    height: 100px;
+    height: 180px;
     width: 100%;
     background-color: darkblue;
     margin-top: 100px;
     float: left;
     box-shadow: 0px -10px 5px rgba(0, 0, 0, 0.337) inset;
     box-shadow: 0px -5px 5px rgba(0, 0, 0, 0.337);
+    bottom: 0px;
 }
-.bottom p{
+.bottom a, p{
     background-color: rgba(240, 248, 255, 0);
-    margin: 10px;
+    margin: 20px;
 }
 
 @media only screen and (max-width: 800px){
@@ -142,12 +144,5 @@ p{
 
     .navbar .item{
         display: none;
-    }
-}
-
-@media only screen and (min-width: 2000px){
-    .card{
-        float: left;
-        width: 20%;
     }
 }
