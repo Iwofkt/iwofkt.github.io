@@ -3,40 +3,722 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpaceBird</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="Images/Logo.png">
-</head>
-<body>
-    <ul class="navbar">
-
-        <a href="index.html"><img class="logo" src="Images/Logo.png" alt="SpaceBird"></a>
-
-        <li><a href="index.html" class="item">Home</a></li>
-        <li><a href="Music.html" class="item">Music</a></li>
-        <li><a href="Photos.html" class="item">Photos</a></li>
-        <li><a href="projects.html" class="item">Projects</a></li>
-    </ul>
-
-    </div class="box">
-            <a href="Photos.html"><div class="card" id="one"> <p>Photos</p></div></a>
-            <a href="Music.html"><div class="card" id="two"><p>Music</p></div></a>
-    </div>
-
-    </div class="box">
-        <a href="projects.html"><div class="card" id="three"> <p>Projects</p></div></a>
-        <a href="index.html"><div class="card" id="four"><p>Home</p></div></a>
-    </div>
-
-    <div class="bottom">
-        <br>
-
-        <a href="https://www.instagram.com/spacebird_music/" target="_blank"><img src="https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png" alt="instagram"></a>
-        <br>
-        <br>
-        <a href="https://soundcloud.com/space_bird" target="_blank"><img src="https://a-v2.sndcdn.com/assets/images/sc-icons/favicon-2cadd14bdb.ico" alt="SoundCloud"></a>
-        <p>spacebird.music@gmail.com</p>
+    <title>Spacebird | Music & Projects</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles */
+        body, html {
+            overflow-x: hidden;
+            font-family: 'Roboto', sans-serif;
+            scroll-behavior: smooth;
+        }
         
+        .music-player {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(147, 51, 234, 0.8));
+            backdrop-filter: blur(10px);
+        }
+        
+        .spacebird-gradient {
+            background: linear-gradient(90deg, #4F46E5, #7E22CE, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(79, 70, 229, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(79, 70, 229, 0.5); }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #4F46E5, #7E22CE);
+            border-radius: 10px;
+        }
+        
+        /* Three.js canvas */
+        canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+        }
+        
+        /* HUD styling */
+        #hud {
+            position: fixed;
+            z-index: 50;
+            font-family: monospace;
+            pointer-events: none;
+            bottom: 20px;
+            left: 20px;
+            color: #0f0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        /* Content sections */
+        section {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Ensure content is readable over space background */
+        .content-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Music player specific styles */
+        .track-playing {
+            border-left: 4px solid #4F46E5;
+            background: rgba(79, 70, 229, 0.1);
+        }
+        
+        .progress-bar {
+            cursor: pointer;
+        }
+        
+        .volume-slider {
+            width: 80px;
+        }
+        
+        /* Visualizer styles */
+        #visualizer-container {
+            position: relative;
+            width: 256px;
+            height: 256px;
+        }
+        
+        #visualizer-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+        
+        .visualizer-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 192px;
+            height: 192px;
+            z-index: 10;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .visualizer-pulse {
+            animation: visualizer-pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes visualizer-pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Three.js Space Simulation Canvas -->
+    <canvas id="spaceCanvas"></canvas>
+    
+    <!-- HUD -->
+    <div id="hud">
+        ⚡ SPEED: <span id="speed">1.0</span>x | 🌌 DEPTH: <span id="depth">0</span> LY<br>
+        Use W/S to control speed | Press E for hyperspace boost
     </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 w-full bg-indigo-900/80 backdrop-blur-md z-50 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <img src="/assets/logo.png" alt="Spacebird Logo" class="h-8 w-8">
+            <div class="text-xl font-bold spacebird-gradient">spacebird</div>
+        </div>
+        
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-button" class="md:hidden text-cyan-300 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        
+        <!-- Desktop menu -->
+        <div class="hidden md:flex space-x-6">
+            <a href="#home" class="text-cyan-300 hover:text-white transition-colors duration-300">Home</a>
+            <a href="#music" class="text-cyan-300 hover:text-white transition-colors duration-300">Music</a>
+            <a href="#projects" class="text-cyan-300 hover:text-white transition-colors duration-300">Projects</a>
+            <a href="#socials" class="text-cyan-300 hover:text-white transition-colors duration-300">Connect</a>
+        </div>
+    </nav>
+    
+    <!-- Mobile menu (hidden by default) -->
+    <div id="mobile-menu" class="md:hidden fixed top-16 left-0 w-full bg-indigo-900/90 backdrop-blur-md z-40 py-4 px-6 transform -translate-y-full transition-transform duration-300">
+        <div class="flex flex-col space-y-4">
+            <a href="#home" class="text-cyan-300 hover:text-white transition-colors duration-300 py-2">Home</a>
+            <a href="#music" class="text-cyan-300 hover:text-white transition-colors duration-300 py-2">Music</a>
+            <a href="#projects" class="text-cyan-300 hover:text-white transition-colors duration-300 py-2">Projects</a>
+            <a href="#socials" class="text-cyan-300 hover:text-white transition-colors duration-300 py-2">Connect</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen pt-20 px-6 md:px-12 lg:px-24 flex flex-col justify-center">
+        <div class="max-w-4xl mx-auto py-10 content-card rounded-3xl p-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                        <span class="spacebird-gradient">spacebird</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-blue-100 leading-relaxed mb-8">
+                        Creating sonic journeys that transcend boundaries. 
+                        Explore my music, discover my projects, and join the cosmic flight.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#music" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 pulse-glow">
+                            Listen Now
+                        </a>
+                        <a href="#projects" class="border border-indigo-500 text-indigo-300 hover:bg-indigo-900/30 px-6 py-3 rounded-full transition-all duration-300">
+                            My Projects
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative">
+                        <!-- Updated visualizer container -->
+                        <div class="w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center floating">
+                            <div id="visualizer-container">
+                                <canvas id="visualizer-canvas"></canvas>
+                                <img src="/assets/logo.png" alt="Spacebird Logo" class="visualizer-logo" id="visualizer-logo">
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 bg-indigo-800 text-white px-4 py-2 rounded-full">
+                            <i class="fas fa-music mr-2"></i> Now Streaming
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music Player Section -->
+    <section id="music" class="min-h-screen px-6 md:px-12 lg:px-24 py-20">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="spacebird-gradient">My Music</span>
+            </h2>
+            
+            <!-- Music Player -->
+            <div class="music-player rounded-2xl p-6 mb-12">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/3 mb-6 md:mb-0 flex justify-center">
+                        <div class="w-48 h-48 bg-indigo-900 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-music text-6xl text-indigo-300" id="album-art-icon"></i>
+                            <img id="album-art" src="" alt="Album Art" class="w-full h-full object-cover rounded-lg hidden">
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 md:pl-8">
+                        <h3 id="current-song-title" class="text-2xl font-bold mb-2">Select a song to play</h3>
+                        <p id="current-song-artist" class="text-indigo-200 mb-4">Artist • Year</p>
+                        <div class="mb-6">
+                            <div class="h-1 bg-indigo-800 rounded-full mb-2 progress-bar" id="progress-bar-container">
+                                <div class="h-1 bg-white rounded-full" id="progress-bar" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm text-indigo-200">
+                                <span id="current-time">0:00</span>
+                                <span id="total-time">0:00</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-4">
+                                <button id="prev-button" class="w-12 h-12 rounded-full bg-white text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors">
+                                    <i class="fas fa-backward"></i>
+                                </button>
+                                <button id="play-button" class="w-12 h-12 rounded-full bg-white text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button id="next-button" class="w-12 h-12 rounded-full bg-white text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors">
+                                    <i class="fas fa-forward"></i>
+                                </button>
+                            </div>
+                            <div class="flex space-x-2 items-center">
+                                <button id="volume-button" class="w-10 h-10 rounded-full bg-indigo-800 flex items-center justify-center hover:bg-indigo-700 transition-colors">
+                                    <i class="fas fa-volume-up text-indigo-300"></i>
+                                </button>
+                                <input type="range" min="0" max="100" value="70" class="volume-slider ml-2" id="volume-slider">
+                                <button id="like-button" class="w-10 h-10 rounded-full bg-indigo-800 flex items-center justify-center hover:bg-indigo-700 transition-colors">
+                                    <i class="fas fa-heart text-indigo-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Music Tracks -->
+            <div id="tracks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tracks will be dynamically loaded here -->
+            </div>
+            
+            <!-- Streaming Platforms -->
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold text-center mb-8">Stream on All Platforms</h3>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="#" class="content-card hover:bg-gray-700 px-6 py-3 rounded-lg transition-colors flex items-center">
+                        <i class="fab fa-spotify text-green-500 text-2xl mr-3"></i>
+                        <span>Spotify</span>
+                    </a>
+                    <a href="#" class="content-card hover:bg-gray-700 px-6 py-3 rounded-lg transition-colors flex items-center">
+                        <i class="fab fa-apple text-gray-300 text-2xl mr-3"></i>
+                        <span>Apple Music</span>
+                    </a>
+                    <a href="#" class="content-card hover:bg-gray-700 px-6 py-3 rounded-lg transition-colors flex items-center">
+                        <i class="fab fa-soundcloud text-orange-500 text-2xl mr-3"></i>
+                        <span>SoundCloud</span>
+                    </a>
+                    <a href="#" class="content-card hover:bg-gray-700 px-6 py-3 rounded-lg transition-colors flex items-center">
+                        <i class="fab fa-youtube text-red-500 text-2xl mr-3"></i>
+                        <span>YouTube</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="min-h-screen px-6 md:px-12 lg:px-24 py-20">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="spacebird-gradient">My Projects</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div class="content-card rounded-2xl p-6 hover:from-indigo-800/50 hover:to-purple-800/50 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-code text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">TacticalThreads</h3>
+                        <p class="text-gray-300">A custom clothing, and patches company. </p>
+                    </div>
+                    <a href="https://tacticalthreads.se/" class="inline-flex items-center text-indigo-300 hover:text-white transition-colors">
+                        Explore Website <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="content-card rounded-2xl p-6 hover:from-purple-800/50 hover:to-pink-800/50 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-gamepad text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Music career</h3>
+                        <p class="text-gray-300">A mix of rap, indie and modern pop in both English and Swedish</p>
+                    </div>
+                    <a href="#" class="inline-flex items-center text-purple-300 hover:text-white transition-colors">
+                        Play Game <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="content-card rounded-2xl p-6 hover:from-pink-800/50 hover:to-indigo-800/50 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-palette text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Audio Reactive Art</h3>
+                        <p class="text-gray-300">Generative art pieces that respond to music in real-time, creating unique visual experiences.</p>
+                    </div>
+                    <a href="#" class="inline-flex items-center text-pink-300 hover:text-white transition-colors">
+                        View Gallery <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- Project 4 -->
+                <div class="content-card rounded-2xl p-6 hover:from-blue-800/50 hover:to-indigo-800/50 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-video text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Music Videos</h3>
+                        <p class="text-gray-300">A collection of visually stunning music videos that bring my songs to life through animation and storytelling.</p>
+                    </div>
+                    <a href="#" class="inline-flex items-center text-blue-300 hover:text-white transition-colors">
+                        Watch Videos <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Socials Section -->
+    <section id="socials" class="min-h-screen px-6 md:px-12 lg:px-24 py-20">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="spacebird-gradient">Connect With Me</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 gap-8 mb-16">         
+                <!-- Social Links -->
+                <div class="content-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold mb-6">Find Me Online</h3>
+                    <div class="space-y-4">
+                        <a href="#" class="flex items-center p-4 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                            <i class="fab fa-instagram text-pink-500 text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">Instagram</h4>
+                                <p class="text-sm text-gray-300">@spacebirdmusic</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center p-4 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                            <i class="fab fa-twitter text-blue-400 text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">Twitter</h4>
+                                <p class="text-sm text-gray-300">@spacebird</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center p-4 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                            <i class="fab fa-tiktok text-gray-300 text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">TikTok</h4>
+                                <p class="text-sm text-gray-300">@spacebird</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center p-4 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                            <i class="fab fa-discord text-indigo-400 text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">Discord</h4>
+                                <p class="text-sm text-gray-300">Join our community</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-indigo-900/70 py-8 px-6 md:px-12 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                    <img src="/assets/logo.png" alt="Spacebird Logo" class="h-6 w-6">
+                    <div class="text-lg font-bold spacebird-gradient">spacebird</div>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fab fa-spotify"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fab fa-apple"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+            <p class="text-cyan-300">&copy; 2025 Spacebird | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <!-- Space Simulation Script -->
+    <script type="module" src="space-simulation.js"></script>
+
+    <!-- Music Player Script -->
+    <script src="music-player.js"></script>
+
+    <!-- Visualizer Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initVisualizer, 500);
+    });
+    
+    function initVisualizer() {
+        const canvas = document.getElementById('visualizer-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const logo = document.getElementById('visualizer-logo');
+        
+        canvas.width = 256;
+        canvas.height = 256;
+        
+        let isVisualizing = false;
+        let animationId = null;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let source = null;
+        
+        function startVisualizer(audioElement) {
+            if (!audioElement) {
+                isVisualizing = true;
+                logo.classList.add('visualizer-pulse');
+                drawVisualizer();
+                return;
+            }
+            
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 512; // Increased for better frequency resolution
+                    analyser.smoothingTimeConstant = 0.8; // Smoother transitions
+                    
+                    source = audioContext.createMediaElementSource(audioElement);
+                    source.connect(analyser);
+                    analyser.connect(audioContext.destination);
+                    
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                isVisualizing = true;
+                logo.classList.add('visualizer-pulse');
+                drawVisualizer();
+            } catch (error) {
+                console.error('Error starting visualizer:', error);
+                isVisualizing = true;
+                logo.classList.add('visualizer-pulse');
+                drawVisualizer();
+            }
+        }
+        
+        function stopVisualizer() {
+            isVisualizing = false;
+            if (logo) logo.classList.remove('visualizer-pulse');
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function drawVisualizer() {
+            if (!isVisualizing) return;
+            
+            animationId = requestAnimationFrame(drawVisualizer);
+            
+            let frequencyData;
+            if (analyser && dataArray) {
+                analyser.getByteFrequencyData(dataArray);
+                frequencyData = dataArray;
+            } else {
+                // Update simulated data with more bass presence
+                for (let i = 0; i < simulatedData.length; i++) {
+                    // Bass frequencies (first 1/4) have more variation
+                    if (i < simulatedData.length / 4) {
+                        simulatedData[i] = Math.max(30, Math.min(200, 
+                            simulatedData[i] + (Math.random() * 40 - 20)
+                        ));
+                    } else {
+                        simulatedData[i] = Math.max(0, Math.min(255, 
+                            simulatedData[i] + (Math.random() * 20 - 10)
+                        ));
+                    }
+                }
+                frequencyData = simulatedData;
+            }
+            
+            // Clear canvas
+            ctx.fillStyle = 'rgba(79, 70, 229, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const baseRadius = 70;
+            
+            // Draw multiple waveform circles with different frequency ranges
+            drawWaveformCircle(centerX, centerY, baseRadius, frequencyData, 0.7, 0.1, 0.2); // Bass frequencies
+            drawWaveformCircle(centerX, centerY, baseRadius + 20, frequencyData, 0.5, 0.2, 0.5); // Mid frequencies
+            drawWaveformCircle(centerX, centerY, baseRadius + 40, frequencyData, 0.3, 0.3, 0.7); // High frequencies
+            
+            // Update logo size based on overall audio energy with more bass influence
+            if (logo) {
+                // Calculate energy with more weight on bass frequencies
+                let energy = 0;
+                let bassEnergy = 0;
+                let totalWeight = 0;
+                
+                for (let i = 0; i < frequencyData.length; i++) {
+                    // Give more weight to bass frequencies (first quarter)
+                    const weight = i < frequencyData.length / 4 ? 2 : 1;
+                    energy += frequencyData[i] * weight;
+                    totalWeight += weight;
+                    
+                    if (i < frequencyData.length / 8) {
+                        bassEnergy += frequencyData[i];
+                    }
+                }
+                
+                energy = energy / totalWeight;
+                const bassFactor = 1 + (bassEnergy / (frequencyData.length / 8)) / 300;
+                const scale = 1 + (energy / 512) * 0.3 * bassFactor;
+                logo.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            }
+        }
+        
+        // Updated drawWaveformCircle function with frequency range parameters
+        function drawWaveformCircle(centerX, centerY, baseRadius, data, opacity, freqStart, freqEnd) {
+            const bars = 64;
+            const barWidth = (2 * Math.PI) / bars;
+            
+            ctx.beginPath();
+            
+            for (let i = 0; i < bars; i++) {
+                // Map circle position to frequency range
+                const freqIndex = Math.floor((i / bars) * (freqEnd - freqStart) * data.length + freqStart * data.length);
+                const amplitude = data[Math.min(freqIndex, data.length - 1)] / 256;
+                
+                // Apply different sensitivity based on frequency range
+                let sensitivity = 30;
+                if (freqStart < 0.2) sensitivity = 40; // More sensitivity for bass
+                
+                const radius = baseRadius + (amplitude * sensitivity);
+                const angle = i * barWidth;
+                
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.closePath();
+            
+            // Create gradient based on frequency range
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, baseRadius - 10,
+                centerX, centerY, baseRadius + 50
+            );
+            
+            // Different colors for different frequency ranges
+            if (freqStart < 0.2) {
+                // Bass frequencies - deeper purple
+                gradient.addColorStop(0, `rgba(99, 102, 241, ${opacity})`);
+                gradient.addColorStop(1, `rgba(79, 70, 229, ${opacity * 0.5})`);
+            } else if (freqStart < 0.5) {
+                // Mid frequencies - medium purple
+                gradient.addColorStop(0, `rgba(147, 51, 234, ${opacity})`);
+                gradient.addColorStop(1, `rgba(126, 34, 206, ${opacity * 0.5})`);
+            } else {
+                // High frequencies - lighter purple
+                gradient.addColorStop(0, `rgba(192, 132, 252, ${opacity})`);
+                gradient.addColorStop(1, `rgba(168, 85, 247, ${opacity * 0.5})`);
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Add a glow effect
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        function checkMusicPlayerState() {
+            let audioElement = null;
+            const audioElements = document.getElementsByTagName('audio');
+            if (audioElements.length > 0) {
+                audioElement = audioElements[0];
+            }
+            
+            if (window.musicPlayer && window.musicPlayer.audio) {
+                audioElement = window.musicPlayer.audio;
+            }
+            
+            if (audioElement) {
+                if (!audioElement.paused && !isVisualizing) {
+                    startVisualizer(audioElement);
+                } else if (audioElement.paused && isVisualizing) {
+                    stopVisualizer();
+                }
+            } else {
+                if (!isVisualizing) {
+                    startVisualizer(null);
+                }
+            }
+        }
+        
+        setInterval(checkMusicPlayerState, 300);
+        checkMusicPlayerState();
+    }
+</script>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            let isMenuOpen = false;
+            
+            mobileMenuButton.addEventListener('click', function() {
+                if (isMenuOpen) {
+                    mobileMenu.classList.add('-translate-y-full');
+                } else {
+                    mobileMenu.classList.remove('-translate-y-full');
+                }
+                isMenuOpen = !isMenuOpen;
+            });
+            
+            // Close mobile menu when clicking on a link
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('-translate-y-full');
+                    isMenuOpen = false;
+                });
+            });
+        });
+    </script>
 </body>
-</html> 
+</html>
